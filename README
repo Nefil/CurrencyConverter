@@ -1,0 +1,52 @@
+# CurrencyConverter
+
+## Project Description
+
+CurrencyConverter is a WPF application written in C#. It allows you to fetch the latest exchange rates from an external API and convert values between different currencies. The main technologies used in this project are: LINQ, HTTPClient, WPF, JSON parsing, and data model handling.
+
+## Features
+
+- Fetching exchange rates from an API ([openexchangerates.org](https://openexchangerates.org/))
+- Converting amounts between selected currencies
+- Simple WPF graphical user interface
+- Error handling and input validation
+- Parsing JSON data
+- Currency rate data model
+
+## Technologies
+
+- C# (.NET)
+- WPF
+- HTTPClient
+- Newtonsoft.Json
+- LINQ (for data collection handling)
+
+## Installation and Running
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/Nefil/CurrencyConverter.git
+   ```
+2. Open the project in Visual Studio.
+3. Obtain an API key from openexchangerates.org and enter it in the code.
+4. Build the project and run the application.
+
+## Usage Example
+
+Select currencies, enter an amount, click “Convert” – the application will fetch exchange rates from the internet and calculate the conversion.
+
+## Potential Project Extensions
+
+- Saving results to a database
+- Conversion history
+- Extended support for currencies and languages
+- Additional LINQ operations
+- Exporting data to files
+
+## Author
+
+Daniel Segeth
+
+## License
+
+Project licensed under MIT.
