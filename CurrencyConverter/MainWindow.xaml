@@ -67,8 +67,16 @@
                               Height="30" 
                               FontSize="16">
                         <ComboBoxItem Content="--SELECT--" IsSelected="True"/>
+                        <ComboBoxItem Content="INR"/>
+                        <ComboBoxItem Content="JPY"/>
                         <ComboBoxItem Content="USD"/>
+                        <ComboBoxItem Content="NZD"/>
                         <ComboBoxItem Content="EUR"/>
+                        <ComboBoxItem Content="CAD"/>
+                        <ComboBoxItem Content="ISK"/>
+                        <ComboBoxItem Content="PHP"/>
+                        <ComboBoxItem Content="DKK"/>
+                        <ComboBoxItem Content="CZK"/>
                         <ComboBoxItem Content="PLN"/>
                         <ComboBoxItem Content="GBP"/>
                     </ComboBox>
@@ -93,8 +101,16 @@
                               Height="30" 
                               FontSize="16">
                         <ComboBoxItem Content="--SELECT--" IsSelected="True"/>
+                        <ComboBoxItem Content="INR"/>
+                        <ComboBoxItem Content="JPY"/>
                         <ComboBoxItem Content="USD"/>
+                        <ComboBoxItem Content="NZD"/>
                         <ComboBoxItem Content="EUR"/>
+                        <ComboBoxItem Content="CAD"/>
+                        <ComboBoxItem Content="ISK"/>
+                        <ComboBoxItem Content="PHP"/>
+                        <ComboBoxItem Content="DKK"/>
+                        <ComboBoxItem Content="CZK"/>
                         <ComboBoxItem Content="PLN"/>
                         <ComboBoxItem Content="GBP"/>
                     </ComboBox>
