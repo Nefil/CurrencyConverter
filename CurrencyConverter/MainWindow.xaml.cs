@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Data;
 using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
@@ -16,13 +14,6 @@ namespace CurrencyConverter
         
         public MainWindow()
         {
-            // Creating a database if it does not exist
-            var connectionString = "Data Source=ConverterDB.db";
-            using (var db = new ConverterDbContext(connectionString))
-            {
-                bool created = db.Database.EnsureCreated();
-            }
-
             InitializeComponent();
             GetValue();
         }
@@ -109,35 +100,46 @@ namespace CurrencyConverter
 
             if (val?.rates != null)
             {
-                using (var db = new ConverterDbContext("Data Source=GameDB.db"))
+                try
                 {
-                    // Usuń stare dane z tabeli Rates
-                    db.Rates.RemoveRange(db.Rates);
-                    await db.SaveChangesAsync();
-
-                    // Dodaj nowe dane do tabeli Rates
-                    db.Rates.AddRange(new[]
+                    using (var db = new ConverterDbContext("Data Source=ConverterDB.db"))
                     {
-                new Rate { CurrencyCode = "USD", ExchangeRate = val.rates.USD, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "EUR", ExchangeRate = val.rates.EUR, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "PLN", ExchangeRate = val.rates.PLN, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "GBP", ExchangeRate = val.rates.GBP, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "INR", ExchangeRate = val.rates.INR, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "JPY", ExchangeRate = val.rates.JPY, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "NZD", ExchangeRate = val.rates.NZD, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "CAD", ExchangeRate = val.rates.CAD, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "ISK", ExchangeRate = val.rates.ISK, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "PHP", ExchangeRate = val.rates.PHP, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "DKK", ExchangeRate = val.rates.DKK, Timestamp = DateTime.Now },
-                new Rate { CurrencyCode = "CZK", ExchangeRate = val.rates.CZK, Timestamp = DateTime.Now }
-            });
+                        // Check if there are any records before removing them
+                        if (await db.Rates.AnyAsync())
+                        {
+                            // Remove old data from Rates table
+                            db.Rates.RemoveRange(db.Rates);
+                            await db.SaveChangesAsync();
+                        }
 
-                    await db.SaveChangesAsync();
+                        // Add new data to Rates table
+                        db.Rates.AddRange(new[]
+                        {
+                            new Rate { CurrencyCode = "USD", ExchangeRate = val.rates.USD, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "EUR", ExchangeRate = val.rates.EUR, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "PLN", ExchangeRate = val.rates.PLN, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "GBP", ExchangeRate = val.rates.GBP, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "INR", ExchangeRate = val.rates.INR, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "JPY", ExchangeRate = val.rates.JPY, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "NZD", ExchangeRate = val.rates.NZD, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "CAD", ExchangeRate = val.rates.CAD, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "ISK", ExchangeRate = val.rates.ISK, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "PHP", ExchangeRate = val.rates.PHP, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "DKK", ExchangeRate = val.rates.DKK, Timestamp = DateTime.Now },
+                            new Rate { CurrencyCode = "CZK", ExchangeRate = val.rates.CZK, Timestamp = DateTime.Now }
+                        });
+
+                        await db.SaveChangesAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error while updating database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Nie udało się pobrać danych z API.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Failed to fetch data from API.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

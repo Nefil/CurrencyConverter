@@ -13,9 +13,9 @@ namespace CurrencyConverter.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string CurrencyCode { get; set; } // Kod waluty (np. USD, EUR)
-        public double ExchangeRate { get; set; } // Kurs wymiany
-        public DateTime Timestamp { get; set; } // Czas pobrania danych
+        public string CurrencyCode { get; set; } 
+        public double ExchangeRate { get; set; } 
+        public DateTime Timestamp { get; set; } 
     }
                 
 }
