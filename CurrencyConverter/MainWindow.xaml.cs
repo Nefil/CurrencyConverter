@@ -2,9 +2,11 @@
 using System;
 using System.Data;
 using System.Net.Http;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;
+using CurrencyConverter.Model;
+using CurrencyConverter.Data;
 
 namespace CurrencyConverter
 {
@@ -14,6 +16,13 @@ namespace CurrencyConverter
         
         public MainWindow()
         {
+            // Creating a database if it does not exist
+            var connectionString = "Data Source=ConverterDB.db";
+            using (var db = new ConverterDbContext(connectionString))
+            {
+                bool created = db.Database.EnsureCreated();
+            }
+
             InitializeComponent();
             GetValue();
         }
@@ -97,16 +106,41 @@ namespace CurrencyConverter
         private async void GetValue()
         {
             val = await GetData<Root>("https://openexchangerates.org/api/latest.json?app_id=de491accbb8548a7926ef9258677ab6c");
+
+            if (val?.rates != null)
+            {
+                using (var db = new ConverterDbContext("Data Source=GameDB.db"))
+                {
+                    // Usuń stare dane z tabeli Rates
+                    db.Rates.RemoveRange(db.Rates);
+                    await db.SaveChangesAsync();
+
+                    // Dodaj nowe dane do tabeli Rates
+                    db.Rates.AddRange(new[]
+                    {
+                new Rate { CurrencyCode = "USD", ExchangeRate = val.rates.USD, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "EUR", ExchangeRate = val.rates.EUR, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "PLN", ExchangeRate = val.rates.PLN, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "GBP", ExchangeRate = val.rates.GBP, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "INR", ExchangeRate = val.rates.INR, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "JPY", ExchangeRate = val.rates.JPY, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "NZD", ExchangeRate = val.rates.NZD, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "CAD", ExchangeRate = val.rates.CAD, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "ISK", ExchangeRate = val.rates.ISK, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "PHP", ExchangeRate = val.rates.PHP, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "DKK", ExchangeRate = val.rates.DKK, Timestamp = DateTime.Now },
+                new Rate { CurrencyCode = "CZK", ExchangeRate = val.rates.CZK, Timestamp = DateTime.Now }
+            });
+
+                    await db.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Nie udało się pobrać danych z API.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        //Root class is the main class. API return rates in the rates. It returns all currency name with value.
-        public class Root
-        {
-            //Get all record in rates and set in rate class as currency name wise
-            public Model.Rate rates { get; set; }
-            public long timestamp;
-            public string license;
-        }
 
         public static async Task<Root> GetData<T>(string url)
         {
