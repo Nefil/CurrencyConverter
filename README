@@ -2,16 +2,18 @@
 
 ## Project Description
 
-CurrencyConverter is a WPF application written in C#. It allows you to fetch the latest exchange rates from an external API and convert values between different currencies. The main technologies used in this project are: LINQ, HTTPClient, WPF, JSON parsing, and data model handling.
+CurrencyConverter is a desktop WPF application written in C#. It allows you to fetch the latest currency exchange rates from an external API and convert values between selected currencies. Additionally, rates are saved in a local SQLite database. The project uses technologies such as LINQ, HTTPClient, WPF, JSON parsing and Entity Framework Core for database operations.
 
 ## Features
 
-- Fetching exchange rates from an API ([openexchangerates.org](https://openexchangerates.org/))
+- Fetching currency exchange rates from API ([openexchangerates.org](https://openexchangerates.org/))
 - Converting amounts between selected currencies
 - Simple WPF graphical user interface
 - Error handling and input validation
-- Parsing JSON data
+- JSON data parsing
 - Currency rate data model
+- Saving rates to local SQLite database
+- Automatic updates of rates on startup
 
 ## Technologies
 
@@ -20,6 +22,7 @@ CurrencyConverter is a WPF application written in C#. It allows you to fetch the
 - HTTPClient
 - Newtonsoft.Json
 - LINQ (for data collection handling)
+- Entity Framework Core (SQLite)
 
 ## Installation and Running
 
@@ -33,15 +36,11 @@ CurrencyConverter is a WPF application written in C#. It allows you to fetch the
 
 ## Usage Example
 
-Select currencies, enter an amount, click “Convert” – the application will fetch exchange rates from the internet and calculate the conversion.
+Select currencies, enter an amount, click “Convert” – the application will fetch the latest rates from the internet, save them in the database and perform the conversion.
 
 ## Potential Project Extensions
 
-- Saving results to a database
-- Conversion history
-- Extended support for currencies and languages
-- Additional LINQ operations
-- Exporting data to files
+- Adding unit tests
 
 ## Author
 
