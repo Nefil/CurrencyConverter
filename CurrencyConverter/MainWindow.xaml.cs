@@ -25,7 +25,7 @@ namespace CurrencyConverter
                 // Checking if the amount has been entered
                 if (string.IsNullOrEmpty(txtAmount.Text))
                 {
-                    MessageBox.Show("Please enter the amount", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Please select currencies", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     txtAmount.Focus();
                     return;
                 }
@@ -76,21 +76,50 @@ namespace CurrencyConverter
 
         private double GetRate(string currencyCode)
         {
-            switch (currencyCode)
+            try
             {
-                case "USD": return val.rates?.USD ?? 1.0;
-                case "EUR": return val.rates?.EUR ?? 0.0;
-                case "PLN": return val.rates?.PLN ?? 0.0;
-                case "GBP": return val.rates?.GBP ?? 0.0;
-                case "INR": return val.rates?.INR ?? 0.0;
-                case "JPY": return val.rates?.JPY ?? 0.0;
-                case "NZD": return val.rates?.NZD ?? 0.0;
-                case "CAD": return val.rates?.CAD ?? 0.0;
-                case "ISK": return val.rates?.ISK ?? 0.0;
-                case "PHP": return val.rates?.PHP ?? 0.0;
-                case "DKK": return val.rates?.DKK ?? 0.0;
-                case "CZK": return val.rates?.CZK ?? 0.0;
-                default: return 0.0;
+                using (var db = new ConverterDbContext("Data Source=ConverterDB.db"))
+                {
+                    // Get exchange rate from database for the given currency code
+                    var rate = db.Rates.FirstOrDefault(r => r.CurrencyCode == currencyCode);
+                    
+                    // If rate is found, return its value
+                    if (rate != null)
+                    {
+                        return rate.ExchangeRate;
+                    }
+                    
+                    // If USD is not found in database, return 1.0 (base currency)
+                    if (currencyCode == "USD")
+                    {
+                        return 1.0;
+                    }
+                    
+                    // Otherwise, return 0.0
+                    return 0.0;
+                }
+            }
+            catch (Exception ex)
+            {
+                // In case of database connection error, fallback to memory values
+                MessageBox.Show($"Database access error: {ex.Message}\nUsing cached values instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                
+                switch (currencyCode)
+                {
+                    case "USD": return val.rates?.USD ?? 1.0;
+                    case "EUR": return val.rates?.EUR ?? 0.0;
+                    case "PLN": return val.rates?.PLN ?? 0.0;
+                    case "GBP": return val.rates?.GBP ?? 0.0;
+                    case "INR": return val.rates?.INR ?? 0.0;
+                    case "JPY": return val.rates?.JPY ?? 0.0;
+                    case "NZD": return val.rates?.NZD ?? 0.0;
+                    case "CAD": return val.rates?.CAD ?? 0.0;
+                    case "ISK": return val.rates?.ISK ?? 0.0;
+                    case "PHP": return val.rates?.PHP ?? 0.0;
+                    case "DKK": return val.rates?.DKK ?? 0.0;
+                    case "CZK": return val.rates?.CZK ?? 0.0;
+                    default: return 0.0;
+                }
             }
         }
 
