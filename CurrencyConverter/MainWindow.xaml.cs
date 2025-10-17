@@ -5,12 +5,15 @@ using System.Windows;
 using System.Windows.Controls;
 using CurrencyConverter.Model;
 using CurrencyConverter.Data;
+using System.Windows.Media;
 
 namespace CurrencyConverter
 {
     public partial class MainWindow : Window
     {
         Root val = new Root();
+        // Add this field to MainWindow class
+        private bool isDarkTheme = false;
         
         public MainWindow()
         {
@@ -194,6 +197,34 @@ namespace CurrencyConverter
             catch
             {
                 return _root;
+            }
+        }
+
+        private void btnThemeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            // Toggle between themes
+            isDarkTheme = !isDarkTheme;
+
+            // Get references to existing resources
+            SolidColorBrush backgroundBrush = (SolidColorBrush)Resources["BackgroundColor"];
+            SolidColorBrush primaryBrush = (SolidColorBrush)Resources["PrimaryColor"];
+            SolidColorBrush textBrush = (SolidColorBrush)Resources["TextColor"];
+
+            if (isDarkTheme)
+            {
+                // Enable dark theme
+                btnThemeToggle.Content = "☀️";
+                backgroundBrush.Color = (Color)ColorConverter.ConvertFromString("#1E1E1E");
+                primaryBrush.Color = (Color)ColorConverter.ConvertFromString("#9C27B0");
+                textBrush.Color = Colors.White;
+            }
+            else
+            {
+                // Enable light theme
+                btnThemeToggle.Content = "🌙";
+                backgroundBrush.Color = Colors.White;
+                primaryBrush.Color = (Color)ColorConverter.ConvertFromString("#E91E63");
+                textBrush.Color = Colors.Black;
             }
         }
     }
