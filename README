@@ -2,7 +2,7 @@
 
 ## Project Description
 
-CurrencyConverter is a desktop WPF application written in C#. It allows you to fetch the latest currency exchange rates from an external free (that's why the key name is in the code) API and convert values between selected currencies. Additionally, rates are saved in a local SQLite database. The project uses technologies such as LINQ, HTTPClient, WPF, JSON parsing and Entity Framework Core for database operations.
+CurrencyConverter is a desktop WPF application written in C#. It allows you to fetch the latest currency exchange rates from an external free (The key name is in the code only for demonstration purposes.) API and convert values between selected currencies. Additionally, rates are saved in a local SQLite database. The project uses technologies such as LINQ, HTTPClient, WPF, JSON parsing and Entity Framework Core for database operations.
 
 ## Features
 
