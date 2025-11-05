@@ -1,11 +1,12 @@
-﻿using CurrencyConverter.Model;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
-
 
 namespace CurrencyConverter.Model
 {
     public static class RatesExtensions
     {
+        // Property map (case-insensitive) for Rates properties (USD, EUR, ...)
         private static readonly Dictionary<string, PropertyInfo> _propMap;
 
         static RatesExtensions()
@@ -14,12 +15,12 @@ namespace CurrencyConverter.Model
             var props = typeof(Rates).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var p in props)
             {
-                // Mapujemy nazwę właściwości (np. "USD") -> PropertyInfo
-                _propMap[p.Name.ToUpperInvariant()] = p;
+                // Map property name (e.g. "USD") -> PropertyInfo
+                _propMap[p.Name] = p;
             }
         }
 
-        // Zwraca kurs z obiektu Rates na podstawie kodu waluty; 0.0 gdy brak
+        // Returns the exchange rate from Rates by currency code; returns 0.0 when missing
         public static double GetByCode(this Rates rates, string currencyCode)
         {
             if (rates == null || string.IsNullOrWhiteSpace(currencyCode))
@@ -34,7 +35,7 @@ namespace CurrencyConverter.Model
             return 0.0;
         }
 
-        // Wygodne rozszerzenie dla Root
+        // Convenient extension for Root to get a rate
         public static double GetRate(this Root root, string currencyCode)
         {
             return root?.rates.GetByCode(currencyCode) ?? 0.0;
