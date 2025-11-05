@@ -2,45 +2,55 @@
 
 ## Project Description
 
-CurrencyConverter is a desktop WPF application written in C#. It allows you to fetch the latest currency exchange rates from an external free (The key name is in the code only for demonstration purposes.) API and convert values between selected currencies. Additionally, rates are saved in a local SQLite database. The project uses technologies such as LINQ, HTTPClient, WPF, JSON parsing and Entity Framework Core for database operations.
+CurrencyConverter is a desktop WPF application written in C#. The application retrieves current currency exchange rates from an external API (the API key shown in the code is for demonstration only) and lets you convert amounts between selected currencies. Exchange rates are stored locally in a SQLite database using Entity Framework Core so the app can use the latest saved rates when offline.
+
+The project demonstrates use of WPF for the UI, HttpClient for network requests, JSON parsing for API responses, LINQ for data handling, and Entity Framework Core for database operations.
 
 ## Features
 
-- Fetching currency exchange rates from API ([openexchangerates.org](https://openexchangerates.org/))
-- Converting amounts between selected currencies
+- Fetch current currency exchange rates from an external API (example: openexchangerates.org)
+- Convert amounts between selected currencies
 - Simple WPF graphical user interface
-- Error handling and input validation
-- JSON data parsing
-- Currency rate data model
-- Saving rates to local SQLite database
-- Automatic updates of rates on startup
+- Input validation and basic error handling (network errors, invalid input)
+- JSON parsing of API responses
+- Currency rate data model and local persistence in SQLite
+- Automatic update of rates on startup (if network is available)
+- Project includes a test project with unit tests
 
 ## Technologies
 
 - C# (.NET)
 - WPF
-- HTTPClient
+- HttpClient
 - Newtonsoft.Json
-- LINQ (for data collection handling)
+- LINQ
 - Entity Framework Core (SQLite)
 
 ## Installation and Running
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/Nefil/CurrencyConverter.git
    ```
-2. Open the project in Visual Studio.
-3. Obtain an API key from openexchangerates.org and enter it in the code.
-4. Build the project and run the application.
+2. Open the solution (CurrencyConverter.sln) in Visual Studio.
+3. Obtain an API key from a currency rates provider (e.g. https://openexchangerates.org/) and set it in the code or configuration (the repository currently shows a demo placement for the key).
+4. Restore NuGet packages, build the solution and run the application.
 
 ## Usage Example
 
-Select currencies, enter an amount, click “Convert” – the application will fetch the latest rates from the internet, save them in the database and perform the conversion.
+- Start the application.
+- Select the source and target currencies in the UI.
+- Enter the amount to convert and click "Convert".
+- If connected, the app will fetch the latest rates, save them to the local SQLite database, and display the converted result.
 
-## Potential Project Extensions
+## Configuration
 
-- Adding unit tests
+- The API endpoint and API key are defined in the source code — consider moving them to a configuration file or environment variables for production use.
+- The SQLite database file is created and managed by Entity Framework Core — check the project configuration for the database path/name.
+
+## Tests
+
+- The repository contains a test project with unit tests covering the conversion logic and other components.
 
 ## Author
 
@@ -48,4 +58,4 @@ Daniel Segeth
 
 ## License
 
-Project licensed under MIT.
+This project is licensed under the MIT License.
