@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,51 +14,56 @@ namespace CurrencyConverter
 {
     public partial class MainWindow : Window
     {
-        Root val = new Root();
-        // Add this field to MainWindow class
+        private Root val = new Root();
         private bool isDarkTheme = false;
-        
+
         public MainWindow()
         {
             InitializeComponent();
             GetValue();
         }
 
+        // Convert button click handler
         private void btnConvert_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Checking if the amount has been entered
+                // Validate amount input
                 if (string.IsNullOrEmpty(txtAmount.Text))
                 {
-                    MessageBox.Show("Please select currencies", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Please enter an amount", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     txtAmount.Focus();
                     return;
                 }
 
-                // Checking if currencies are selected
-                if (cmbFromCurrency.SelectedItem == null || 
-                    cmbToCurrency.SelectedItem == null || 
-                    ((ComboBoxItem)cmbFromCurrency.SelectedItem).Content.ToString() == "--SELECT--" || 
+                // Validate currency selection
+                if (cmbFromCurrency.SelectedItem == null ||
+                    cmbToCurrency.SelectedItem == null ||
+                    ((ComboBoxItem)cmbFromCurrency.SelectedItem).Content.ToString() == "--SELECT--" ||
                     ((ComboBoxItem)cmbToCurrency.SelectedItem).Content.ToString() == "--SELECT--")
                 {
-                    MessageBox.Show("Please enter the amount", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Please select both currencies", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
-                // Downloading the amount and currency codes
-                double amount = double.Parse(txtAmount.Text);
+                // Parse amount using conversion logic (culture invariant)
+                if (!ConversionLogic.TryParseAmount(txtAmount.Text, out double amount))
+                {
+                    MessageBox.Show("Invalid amount format", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    txtAmount.Focus();
+                    return;
+                }
+
                 string fromCurrency = ((ComboBoxItem)cmbFromCurrency.SelectedItem).Content.ToString();
                 string toCurrency = ((ComboBoxItem)cmbToCurrency.SelectedItem).Content.ToString();
 
-                // Calculating the conversion result
                 double fromRate = GetRate(fromCurrency);
                 double toRate = GetRate(toCurrency);
-                
+
                 if (fromRate > 0 && toRate > 0)
                 {
-                    double convertedAmount = (toRate / fromRate) * amount;
-                    txtResult.Text = $"{amount} {fromCurrency} = {convertedAmount:N2} {toCurrency}";
+                    double convertedAmount = ConversionLogic.CalculateConvertedAmount(amount, fromRate, toRate);
+                    txtResult.Text = ConversionLogic.FormatResult(amount, fromCurrency, convertedAmount, toCurrency);
                 }
                 else
                 {
@@ -68,6 +76,7 @@ namespace CurrencyConverter
             }
         }
 
+        // Clear button handler
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             txtAmount.Text = "";
@@ -77,6 +86,7 @@ namespace CurrencyConverter
             txtAmount.Focus();
         }
 
+        // Gets a rate from database, falls back to cached Root if DB fails
         private double GetRate(string currencyCode)
         {
             try
@@ -88,50 +98,41 @@ namespace CurrencyConverter
 
                     // Get exchange rate from database for the given currency code
                     var rate = db.Rates.FirstOrDefault(r => r.CurrencyCode == currencyCode);
-                    
+
                     // If rate is found, return its value
                     if (rate != null)
                     {
                         return rate.ExchangeRate;
                     }
-                    
+
                     // If USD is not found in database, return 1.0 (base currency)
                     if (currencyCode == "USD")
                     {
                         return 1.0;
                     }
-                    
+
                     // Otherwise, return 0.0
                     return 0.0;
                 }
             }
             catch (Exception ex)
             {
-                // In case of database connection error, fallback to memory values
+                // In case of database connection error, fallback to cached values
                 MessageBox.Show($"Database access error: {ex.Message}\nUsing cached values instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                
-                switch (currencyCode)
-                {
-                    case "USD": return val.rates?.USD ?? 1.0;
-                    case "EUR": return val.rates?.EUR ?? 0.0;
-                    case "PLN": return val.rates?.PLN ?? 0.0;
-                    case "GBP": return val.rates?.GBP ?? 0.0;
-                    case "INR": return val.rates?.INR ?? 0.0;
-                    case "JPY": return val.rates?.JPY ?? 0.0;
-                    case "NZD": return val.rates?.NZD ?? 0.0;
-                    case "CAD": return val.rates?.CAD ?? 0.0;
-                    case "ISK": return val.rates?.ISK ?? 0.0;
-                    case "PHP": return val.rates?.PHP ?? 0.0;
-                    case "DKK": return val.rates?.DKK ?? 0.0;
-                    case "CZK": return val.rates?.CZK ?? 0.0;
-                    default: return 0.0;
-                }
+
+                // Preserve previous behavior for USD defaulting to 1.0 when missing
+                if (currencyCode == "USD")
+                    return val?.rates?.USD ?? 1.0;
+
+                // Use extension method to read from cached 'val' Root
+                return val.GetRate(currencyCode);
             }
         }
 
+        // Fetches latest rates from API and updates local DB
         private async void GetValue()
         {
-            val = await GetData<Root>("https://openexchangerates.org/api/latest.json?app_id=de491accbb8548a7926ef9258677ab6c");
+            val = await GetData("https://openexchangerates.org/api/latest.json?app_id=de491accbb8548a7926ef9258677ab6c");
 
             if (val?.rates != null)
             {
@@ -142,10 +143,9 @@ namespace CurrencyConverter
                         // Ensure DB file and tables exist (creates schema if missing)
                         db.Database.EnsureCreated();
 
-                        // Check if there are any records before removing them
+                        // Remove old records if any
                         if (await db.Rates.AnyAsync())
                         {
-                            // Remove old data from Rates table
                             db.Rates.RemoveRange(db.Rates);
                             await db.SaveChangesAsync();
                         }
@@ -181,8 +181,8 @@ namespace CurrencyConverter
             }
         }
 
-
-        public static async Task<Root> GetData<T>(string url)
+        // Fetch JSON and deserialize into Root
+        public static async Task<Root> GetData(string url)
         {
             var _root = new Root();
             try
@@ -193,9 +193,9 @@ namespace CurrencyConverter
                     HttpResponseMessage response = await client.GetAsync(url);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
-                        var ResponseString = await response.Content.ReadAsStringAsync();
-                        var ResponseObject = JsonConvert.DeserializeObject<Root>(ResponseString);
-                        return ResponseObject;
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        var responseObject = JsonConvert.DeserializeObject<Root>(responseString);
+                        return responseObject;
                     }
                     return _root;
                 }
@@ -206,6 +206,7 @@ namespace CurrencyConverter
             }
         }
 
+        // Theme toggle handler
         private void btnThemeToggle_Click(object sender, RoutedEventArgs e)
         {
             // Toggle between themes
