@@ -83,6 +83,9 @@ namespace CurrencyConverter
             {
                 using (var db = new ConverterDbContext("Data Source=ConverterDB.db"))
                 {
+                    // Ensure DB file and tables exist (creates schema if missing)
+                    db.Database.EnsureCreated();
+
                     // Get exchange rate from database for the given currency code
                     var rate = db.Rates.FirstOrDefault(r => r.CurrencyCode == currencyCode);
                     
@@ -136,6 +139,9 @@ namespace CurrencyConverter
                 {
                     using (var db = new ConverterDbContext("Data Source=ConverterDB.db"))
                     {
+                        // Ensure DB file and tables exist (creates schema if missing)
+                        db.Database.EnsureCreated();
+
                         // Check if there are any records before removing them
                         if (await db.Rates.AnyAsync())
                         {
