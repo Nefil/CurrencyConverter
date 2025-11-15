@@ -29,7 +29,7 @@ The project demonstrates use of WPF for the UI, HttpClient for network requests,
 ## Installation and Running
 
 1. Clone the repository:
-   ```bash
+   ```
    git clone https://github.com/Nefil/CurrencyConverter.git
    ```
 2. Open the solution (CurrencyConverter.sln) in Visual Studio.
